@@ -6,6 +6,16 @@ from PIL import Image
 import csv
 import os
 
+'''
+plt.figure()
+for i in range(1,9):
+    plt.subplot(2,4,i)
+    plt.imshow(images[i-1])
+    plt.xticks([])
+    plt.yticks([])
+plt.show()
+'''
+
 def default_loader(path):
     return Image.open(path).convert('RGB')
 
@@ -43,22 +53,26 @@ def img_augmentation(img_name):
     results = img_path + img_rotate(img) + img_rotate(img_ud)
     return results
 
-def img_enrich_x8(img_lists, csv_path="", new_img_path="C:/Users/sx_lb/Desktop/image/"):
+def img_enrich_x8(img_lists, csv_path="", new_img_path=""):
     image_path = img_lists[0].split('/')[2]
     label = str(img_lists[-1])
-    csv_file = open('C:/Users/sx_lb/Desktop/1021.csv', 'a+')
+    csv_file = open(csv_path, 'a+', newline="")
     writer = csv.writer(csv_file)
     for i in range(8):
-        img_lists[i+1].save(new_img_path + str(i) + "_" + image_path)
-        # writer.writerows([str(i) + "_" + image_path, label])
+        full_path = new_img_path + str(i) + "_" + image_path
+        file_path = str(i) + "_" + image_path
+        img_lists[i+1].save(full_path)
+        writer.writerow([file_path, label])
 
 if __name__ == "__main__":
     train_data = MyDataset('datasets/Train_label.csv')
     train_loader = DataLoader(dataset=train_data, batch_size=1, shuffle=True, num_workers=4, pin_memory=True)
+    new_img_path = "C:/Users/Gsx/Desktop/images/"
+    csv_path = 'C:/Users/Gsx/Desktop/1021.csv'
 
     for i, (images, labels) in enumerate(train_loader):
         image = images[0]
         labels = labels.numpy().tolist()[0]
         # print(len(img_augmentation(img_name=image)))
-        img_enrich_x8(img_augmentation(img_name=image) + [labels])
+        img_enrich_x8(img_augmentation(img_name=image) + [labels], csv_path=csv_path, new_img_path=new_img_path)
         exit()
